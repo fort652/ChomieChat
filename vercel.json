@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "api/socketio.js": {
+    "src/pages/api/socketio.js": {
       "maxDuration": 60
     }
   }

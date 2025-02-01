@@ -122,10 +122,13 @@ export default function ChatBox({ user, messages, onSendMessage, socketConnected
           reconnectionAttempts: 5,
           reconnectionDelay: 1000,
           reconnection: true,
-          transports: ['polling', 'websocket'], // Add polling as fallback
+          transports: ['polling', 'websocket'],
           auth: {
             token: document.cookie.split('token=')[1]?.split(';')[0]
-          }
+          },
+          ...(process.env.NEXT_PUBLIC_BASE_URL && {
+            host: process.env.NEXT_PUBLIC_BASE_URL.replace(/^https?:\/\//, '')
+          })
         });
 
         socket.on('connect', () => {
