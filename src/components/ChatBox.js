@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useTheme } from '@/context/ThemeContext';
+import io from 'socket.io-client';
 
 export default function ChatBox({ user, messages, onSendMessage, socketConnected, socket }) {
   const [newMessage, setNewMessage] = useState('');
@@ -110,6 +111,45 @@ export default function ChatBox({ user, messages, onSendMessage, socketConnected
       };
     }
   }, [socket, user]);
+
+  useEffect(() => {
+    const socketInit = async () => {
+      try {
+        await fetch('/api/socketio');
+        const socket = io({
+          path: '/api/socketio',
+          addTrailingSlash: false,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          reconnection: true,
+          transports: ['polling', 'websocket'], // Add polling as fallback
+          auth: {
+            token: document.cookie.split('token=')[1]?.split(';')[0]
+          }
+        });
+
+        socket.on('connect', () => {
+          console.log('Socket connected:', socket.id);
+        });
+
+        socket.on('connect_error', (error) => {
+          console.error('Socket connection error:', error);
+        });
+
+        setSocket(socket);
+      } catch (error) {
+        console.error('Socket initialization error:', error);
+      }
+    };
+
+    socketInit();
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, []);
 
   return (
     <Paper 
